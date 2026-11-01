@@ -1,0 +1,9 @@
+{
+  // Static site on Cloudflare Workers, served at the subdomain below.
+  "name": "dino-math",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    "directory": "./dist"
+  },
+  "routes": [{ "pattern": "dino.pearlcore.net", "custom_domain": true }]
+}
