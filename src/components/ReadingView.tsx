@@ -9,6 +9,8 @@ interface Props {
 }
 
 export function ReadingView({ question: q, placed, revealed, onReplay }: Props) {
+  const font = q.lang === 'en' ? 'eng' : 'heb';
+  const dir = q.lang === 'en' ? 'ltr' : 'rtl';
   return (
     <div className="reading">
       {q.prompt.listen && (
@@ -17,14 +19,14 @@ export function ReadingView({ question: q, placed, revealed, onReplay }: Props) 
         </button>
       )}
       {q.prompt.emoji && <div className="reading-emoji">{q.prompt.emoji}</div>}
-      {q.prompt.letter && <div className="reading-letter heb">{q.prompt.letter}</div>}
-      {q.prompt.word && <div className="reading-word heb">{q.prompt.word}</div>}
+      {q.prompt.letter && <div className={`reading-letter ${font}`}>{q.prompt.letter}</div>}
+      {q.prompt.word && <div className={`reading-word ${font}`} dir={dir}>{q.prompt.word}</div>}
       {q.spell && (
-        <div className="spell-slots">
+        <div className="spell-slots" dir={dir}>
           {q.spell.letters.map((letter, i) => {
             const filled = i < placed || revealed;
             return (
-              <span key={i} className={`spell-slot heb ${filled ? 'spell-slot--filled' : ''} ${revealed && i >= placed ? 'spell-slot--revealed' : ''}`}>
+              <span key={i} className={`spell-slot ${font} ${filled ? 'spell-slot--filled' : ''} ${revealed && i >= placed ? 'spell-slot--revealed' : ''}`}>
                 {filled ? letter : ''}
               </span>
             );

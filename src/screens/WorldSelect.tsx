@@ -16,6 +16,7 @@ interface Props {
 const WORLDS: { id: World; name: string; sign: string; dino: number }[] = [
   { id: 'math', name: 'חשבון', sign: '1 2 3', dino: 1 },
   { id: 'reading', name: 'קריאה', sign: 'א ב ג', dino: 101 },
+  { id: 'english', name: 'אנגלית', sign: 'A B C', dino: 201 },
 ];
 
 export function WorldSelect({ profile, onPick, onSwitchProfile }: Props) {
@@ -43,7 +44,7 @@ export function WorldSelect({ profile, onPick, onSwitchProfile }: Props) {
               onPick(w.id);
             }}
           >
-            <span className={`world-sign ${w.id === 'reading' ? 'heb' : ''}`} dir={w.id === 'math' ? 'ltr' : 'rtl'}>
+            <span className={`world-sign ${w.id === 'reading' ? 'heb' : w.id === 'english' ? 'eng' : ''}`} dir={w.id === 'reading' ? 'rtl' : 'ltr'}>
               {w.sign}
             </span>
             <Dino dino={dinoForLevel(w.dino)} size={150} />

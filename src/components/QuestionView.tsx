@@ -1,5 +1,5 @@
 import type { Question } from '../engine/generator';
-import { ObjectGroup } from './ObjectGroup';
+import { ObjectGroup, TenCartons } from './ObjectGroup';
 
 interface Props {
   question: Question;
@@ -29,10 +29,38 @@ function Expression({ q, typed, revealed }: { q: Question; typed?: string; revea
 }
 
 function Pictures({ q, hint }: { q: Question; hint: boolean }) {
+  if (q.tens) {
+    return q.kind === 'sub' ? (
+      <TenCartons tens={q.a / 10} item={q.item} crossed={q.b / 10} hint={hint} />
+    ) : (
+      <div className="pictures-row pictures-row--wide" dir="ltr">
+        <div className="pictures-slot">
+          <TenCartons tens={q.a / 10} item={q.item} hint={hint} />
+        </div>
+        <span className="pictures-op">+</span>
+        <div className="pictures-slot">
+          <TenCartons tens={q.b / 10} item={q.item} hint={hint} />
+        </div>
+      </div>
+    );
+  }
   switch (q.kind) {
     case 'count':
       return <ObjectGroup count={q.a} item={q.item} hint={hint} />;
+    case 'half':
+      return <ObjectGroup count={q.total} item={q.item} ghost={q.answer} hint={hint} />;
+    case 'mul':
+      return (
+        <div className="mul-groups" dir="ltr">
+          {Array.from({ length: q.a }, (_, i) => (
+            <div className="mul-group" key={i}>
+              <ObjectGroup count={q.b} item={q.item} hint={hint} size={q.a * q.b > 12 ? 30 : 44} />
+            </div>
+          ))}
+        </div>
+      );
     case 'add':
+    case 'double':
       return (
         <div className={`pictures-row ${q.answer > 10 ? 'pictures-row--wide' : ''}`} dir="ltr">
           <div className="pictures-slot">
@@ -76,8 +104,8 @@ export function QuestionView({ question: q, typed, hint, revealed, wrongPicks, o
     );
   }
 
-  // Number-only levels show pictures as a hint after a mistake.
-  const showPictures = q.pictures || hint;
+  // Number-only levels show pictures as a hint after a mistake, while there are few enough to count.
+  const showPictures = q.pictures || (hint && (q.tens || Math.max(q.total, q.answer) <= 20));
   return (
     <div className="question">
       {showPictures && (

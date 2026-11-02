@@ -12,6 +12,7 @@ export function nextSpellTile(spell: Spell, placed: number[]): number | null {
 
 interface Props {
   tiles: string[];
+  lang: 'he' | 'en';
   placed: number[];
   wrong: number[];
   hintTile: number | null;
@@ -20,7 +21,7 @@ interface Props {
 }
 
 /** Shuffled letter tiles for building a word; used tiles leave an empty spot. */
-export function SpellTiles({ tiles, placed, wrong, hintTile, disabled, onPick }: Props) {
+export function SpellTiles({ tiles, lang, placed, wrong, hintTile, disabled, onPick }: Props) {
   return (
     <div className="choices choices--spell">
       {tiles.map((t, i) => {
@@ -28,7 +29,7 @@ export function SpellTiles({ tiles, placed, wrong, hintTile, disabled, onPick }:
         return (
           <button
             key={i}
-            className={`choice tile tile--letter heb ${used ? 'tile--used' : ''} ${wrong.includes(i) ? 'choice--wrong' : ''} ${hintTile === i ? 'tile--hint' : ''}`}
+            className={`choice tile tile--letter ${lang === 'en' ? 'eng' : 'heb'} ${used ? 'tile--used' : ''} ${wrong.includes(i) ? 'choice--wrong' : ''} ${hintTile === i ? 'tile--hint' : ''}`}
             style={{ ['--choice-color' as string]: '#4d96ff' }}
             disabled={disabled || used || wrong.includes(i)}
             onClick={() => onPick(i)}

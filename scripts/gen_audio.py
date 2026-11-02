@@ -1,14 +1,16 @@
-"""Records every clip in scripts/clips.json with a natural Hebrew voice into public/audio/.
+"""Records every clip in scripts/clips.json into public/audio/: Hebrew sentences with a Hebrew voice, English letters and words with an English one.
 
 Needs: pip install edge-tts. Existing files are kept, so only new sentences are recorded.
 """
 import asyncio
 import json
 import os
+import re
 
 import edge_tts
 
 VOICE = "he-IL-HilaNeural"
+ENGLISH_VOICE = "en-US-AnaNeural"
 RATE = "-10%"
 OUT = "public/audio"
 
@@ -20,7 +22,8 @@ async def record(clip, sem):
     async with sem:
         for attempt in range(3):
             try:
-                await edge_tts.Communicate(clip["text"], VOICE, rate=RATE).save(path)
+                voice = VOICE if re.search("[֐-׿]", clip["text"]) else ENGLISH_VOICE
+                await edge_tts.Communicate(clip["text"], voice, rate=RATE).save(path)
                 return True
             except Exception as e:  # network hiccups: retry
                 if attempt == 2:

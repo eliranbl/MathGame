@@ -11,7 +11,7 @@ export const LINES = {
   passed: 'כל הכבוד! סיימת את השלב',
   almost: 'כמעט! עוד קצת אימון וזה יצליח',
   hatched: 'בקע לך',
-  worlds: ['חשבון', 'קריאה'],
+  worlds: ['חשבון', 'קריאה', 'אנגלית'],
 };
 
 const randomOf = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];

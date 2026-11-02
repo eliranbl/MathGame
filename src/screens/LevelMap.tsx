@@ -18,6 +18,12 @@ interface Props {
   onWorlds: () => void;
 }
 
+const BADGES: Record<World, { sign: string; font: string }> = {
+  math: { sign: '1 2 3', font: '' },
+  reading: { sign: 'א ב ג', font: 'heb' },
+  english: { sign: 'ABC', font: 'eng' },
+};
+
 export function LevelMap({ world, profile, muted, onToggleMute, onPlay, onCollection, onParents, onWorlds }: Props) {
   const levels = levelsOf(world);
   const current = Math.max(...levels.filter((l) => profile.levels[l.id]?.unlocked).map((l) => l.id));
@@ -33,8 +39,8 @@ export function LevelMap({ world, profile, muted, onToggleMute, onPlay, onCollec
         <IconButton label="בחירת עולם" onClick={onWorlds}>
           🌍
         </IconButton>
-        <span className={`world-badge ${world === 'reading' ? 'heb' : ''}`} dir={world === 'math' ? 'ltr' : 'rtl'}>
-          {world === 'math' ? '1 2 3' : 'א ב ג'}
+        <span className={`world-badge ${BADGES[world].font}`} dir={world === 'reading' ? 'rtl' : 'ltr'}>
+          {BADGES[world].sign}
         </span>
         <ScoreBadge score={profile.totalScore} />
         <div className="topbar-group">

@@ -206,6 +206,7 @@ export function PlayScreen({ level, startDifficulty, roundLength, profileColor, 
           question.spell ? (
             <SpellTiles
               tiles={question.spell.tiles}
+              lang={question.lang}
               placed={placed}
               // A letter tapped too early is still needed later, so only letters not in the rest of the word stay disabled.
               wrong={wrongPicks
@@ -220,6 +221,7 @@ export function PlayScreen({ level, startDifficulty, roundLength, profileColor, 
             <TileChoices
               choices={question.choices}
               style={question.choiceStyle}
+              lang={question.lang}
               wrongPicks={wrongPicks.filter((w): w is string => typeof w === 'string')}
               correct={locked ? question.answer : null}
               disabled={locked}
@@ -235,7 +237,13 @@ export function PlayScreen({ level, startDifficulty, roundLength, profileColor, 
             onPick={answer}
           />
         ) : (
-          <NumberPad value={typed} disabled={locked} onChange={setTyped} onSubmit={() => answer(Number(typed))} />
+          <NumberPad
+            value={typed}
+            maxDigits={level.world === 'math' && level.maxHard >= 100 ? 3 : 2}
+            disabled={locked}
+            onChange={setTyped}
+            onSubmit={() => answer(Number(typed))}
+          />
         )}
       </section>
     </div>

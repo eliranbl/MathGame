@@ -68,8 +68,8 @@ const formatTime = (seconds: number) => {
 
 const percent = (part: number, total: number) => (total ? `${Math.round((part / total) * 100)}%` : '—');
 
-const WORLD_NAMES: Record<World, string> = { math: 'חשבון', reading: 'קריאה' };
-const WORLDS: World[] = ['math', 'reading'];
+const WORLD_NAMES: Record<World, string> = { math: 'חשבון', reading: 'קריאה', english: 'אנגלית' };
+const WORLDS: World[] = ['math', 'reading', 'english'];
 
 const READING_MISTAKES: Record<string, string> = {
   letter: 'זיהוי אות',
@@ -80,6 +80,8 @@ const READING_MISTAKES: Record<string, string> = {
   read: 'קריאת מילה',
   find: 'מציאת מילה',
   spell: 'כתיבת מילה',
+  case: 'אות גדולה וקטנה',
+  listen: 'הבנת מילה',
 };
 
 /** Readable label for a mistake key, e.g. "first:דג" → "אות פותחת: דג". */

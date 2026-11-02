@@ -1,82 +1,84 @@
 import type { Vowel } from '../levels';
 
 export interface Word {
-  /** Written with niqqud, as shown to the child. */
-  nikud: string;
+  /** As shown to the child: Hebrew with niqqud, English in lowercase. */
+  text: string;
   emoji: string;
+  /** English words: the Hebrew meaning, said in hints. */
+  meaning?: string;
 }
 
 /** Short words a kindergartner knows, each with a clear emoji. Plain spelling is derived from the niqqud. */
 export const WORDS: Word[] = [
-  { nikud: 'דָּג', emoji: '🐟' },
-  { nikud: 'צָב', emoji: '🐢' },
-  { nikud: 'עֵץ', emoji: '🌳' },
-  { nikud: 'לֵב', emoji: '❤️' },
-  { nikud: 'יָם', emoji: '🌊' },
-  { nikud: 'יָד', emoji: '✋' },
-  { nikud: 'אַף', emoji: '👃' },
-  { nikud: 'פֶּה', emoji: '👄' },
-  { nikud: 'אֵשׁ', emoji: '🔥' },
-  { nikud: 'שֵׁן', emoji: '🦷' },
-  { nikud: 'סוּס', emoji: '🐴' },
-  { nikud: 'תּוּת', emoji: '🍓' },
-  { nikud: 'פִּיל', emoji: '🐘' },
-  { nikud: 'קוֹף', emoji: '🐒' },
-  { nikud: 'בַּיִת', emoji: '🏠' },
-  { nikud: 'עַיִן', emoji: '👁️' },
-  { nikud: 'גֶּשֶׁם', emoji: '🌧️' },
-  { nikud: 'חָלָב', emoji: '🥛' },
-  { nikud: 'גֶּזֶר', emoji: '🥕' },
-  { nikud: 'כֶּלֶב', emoji: '🐶' },
-  { nikud: 'סֵפֶר', emoji: '📖' },
-  { nikud: 'שֶׁמֶשׁ', emoji: '☀️' },
-  { nikud: 'נָחָשׁ', emoji: '🐍' },
-  { nikud: 'פֶּרַח', emoji: '🌸' },
-  { nikud: 'פָּרָה', emoji: '🐄' },
-  { nikud: 'יָרֵחַ', emoji: '🌙' },
-  { nikud: 'גָּמָל', emoji: '🐫' },
-  { nikud: 'לֶחֶם', emoji: '🍞' },
-  { nikud: 'עָנָן', emoji: '☁️' },
-  { nikud: 'זְאֵב', emoji: '🐺' },
-  { nikud: 'דֶּלֶת', emoji: '🚪' },
-  { nikud: 'רֶגֶל', emoji: '🦶' },
-  { nikud: 'מֶלֶךְ', emoji: '👑' },
-  { nikud: 'נַעַל', emoji: '👟' },
-  { nikud: 'עוּגָה', emoji: '🎂' },
-  { nikud: 'חָתוּל', emoji: '🐱' },
-  { nikud: 'כַּדּוּר', emoji: '⚽' },
-  { nikud: 'מָטוֹס', emoji: '✈️' },
-  { nikud: 'סִירָה', emoji: '⛵' },
-  { nikud: 'כּוֹכָב', emoji: '⭐' },
-  { nikud: 'פִּיצָה', emoji: '🍕' },
-  { nikud: 'בֵּיצָה', emoji: '🥚' },
-  { nikud: 'בָּלוֹן', emoji: '🎈' },
-  { nikud: 'כּוֹבַע', emoji: '🎩' },
-  { nikud: 'שָׁעוֹן', emoji: '⌚' },
-  { nikud: 'עַכְבָּר', emoji: '🐭' },
-  { nikud: 'נְמָלָה', emoji: '🐜' },
-  { nikud: 'פַּרְפַּר', emoji: '🦋' },
-  { nikud: 'תַּפּוּחַ', emoji: '🍎' },
-  { nikud: 'בָּנָנָה', emoji: '🍌' },
-  { nikud: 'גְּלִידָה', emoji: '🍦' },
-  { nikud: 'אַרְיֵה', emoji: '🦁' },
-  { nikud: 'רַכֶּבֶת', emoji: '🚂' },
-  { nikud: 'דְּבוֹרָה', emoji: '🐝' },
-  { nikud: 'זֶבְּרָה', emoji: '🦓' },
-  { nikud: 'מַתָּנָה', emoji: '🎁' },
-  { nikud: 'יַנְשׁוּף', emoji: '🦉' },
-  { nikud: 'מַפְתֵּחַ', emoji: '🔑' },
-  { nikud: 'תִּינוֹק', emoji: '👶' },
-  { nikud: 'עֲנָבִים', emoji: '🍇' },
-  { nikud: 'מְכוֹנִית', emoji: '🚗' },
-  { nikud: 'אֲבַטִּיחַ', emoji: '🍉' },
-  { nikud: 'צְפַרְדֵּעַ', emoji: '🐸' },
+  { text: 'דָּג', emoji: '🐟' },
+  { text: 'צָב', emoji: '🐢' },
+  { text: 'עֵץ', emoji: '🌳' },
+  { text: 'לֵב', emoji: '❤️' },
+  { text: 'יָם', emoji: '🌊' },
+  { text: 'יָד', emoji: '✋' },
+  { text: 'אַף', emoji: '👃' },
+  { text: 'פֶּה', emoji: '👄' },
+  { text: 'אֵשׁ', emoji: '🔥' },
+  { text: 'שֵׁן', emoji: '🦷' },
+  { text: 'סוּס', emoji: '🐴' },
+  { text: 'תּוּת', emoji: '🍓' },
+  { text: 'פִּיל', emoji: '🐘' },
+  { text: 'קוֹף', emoji: '🐒' },
+  { text: 'בַּיִת', emoji: '🏠' },
+  { text: 'עַיִן', emoji: '👁️' },
+  { text: 'גֶּשֶׁם', emoji: '🌧️' },
+  { text: 'חָלָב', emoji: '🥛' },
+  { text: 'גֶּזֶר', emoji: '🥕' },
+  { text: 'כֶּלֶב', emoji: '🐶' },
+  { text: 'סֵפֶר', emoji: '📖' },
+  { text: 'שֶׁמֶשׁ', emoji: '☀️' },
+  { text: 'נָחָשׁ', emoji: '🐍' },
+  { text: 'פֶּרַח', emoji: '🌸' },
+  { text: 'פָּרָה', emoji: '🐄' },
+  { text: 'יָרֵחַ', emoji: '🌙' },
+  { text: 'גָּמָל', emoji: '🐫' },
+  { text: 'לֶחֶם', emoji: '🍞' },
+  { text: 'עָנָן', emoji: '☁️' },
+  { text: 'זְאֵב', emoji: '🐺' },
+  { text: 'דֶּלֶת', emoji: '🚪' },
+  { text: 'רֶגֶל', emoji: '🦶' },
+  { text: 'מֶלֶךְ', emoji: '👑' },
+  { text: 'נַעַל', emoji: '👟' },
+  { text: 'עוּגָה', emoji: '🎂' },
+  { text: 'חָתוּל', emoji: '🐱' },
+  { text: 'כַּדּוּר', emoji: '⚽' },
+  { text: 'מָטוֹס', emoji: '✈️' },
+  { text: 'סִירָה', emoji: '⛵' },
+  { text: 'כּוֹכָב', emoji: '⭐' },
+  { text: 'פִּיצָה', emoji: '🍕' },
+  { text: 'בֵּיצָה', emoji: '🥚' },
+  { text: 'בָּלוֹן', emoji: '🎈' },
+  { text: 'כּוֹבַע', emoji: '🎩' },
+  { text: 'שָׁעוֹן', emoji: '⌚' },
+  { text: 'עַכְבָּר', emoji: '🐭' },
+  { text: 'נְמָלָה', emoji: '🐜' },
+  { text: 'פַּרְפַּר', emoji: '🦋' },
+  { text: 'תַּפּוּחַ', emoji: '🍎' },
+  { text: 'בָּנָנָה', emoji: '🍌' },
+  { text: 'גְּלִידָה', emoji: '🍦' },
+  { text: 'אַרְיֵה', emoji: '🦁' },
+  { text: 'רַכֶּבֶת', emoji: '🚂' },
+  { text: 'דְּבוֹרָה', emoji: '🐝' },
+  { text: 'זֶבְּרָה', emoji: '🦓' },
+  { text: 'מַתָּנָה', emoji: '🎁' },
+  { text: 'יַנְשׁוּף', emoji: '🦉' },
+  { text: 'מַפְתֵּחַ', emoji: '🔑' },
+  { text: 'תִּינוֹק', emoji: '👶' },
+  { text: 'עֲנָבִים', emoji: '🍇' },
+  { text: 'מְכוֹנִית', emoji: '🚗' },
+  { text: 'אֲבַטִּיחַ', emoji: '🍉' },
+  { text: 'צְפַרְדֵּעַ', emoji: '🐸' },
 ];
 
 /** Removes niqqud and dagesh marks, leaving bare letters. */
 export const stripNikud = (s: string) => s.replace(/[֑-ׇ]/g, '');
 
-export const plainOf = (w: Word) => stripNikud(w.nikud);
+export const plainOf = (w: Word) => stripNikud(w.text);
 
 /** First letter of a word, without marks. */
 export const firstLetterOf = (w: Word) => plainOf(w)[0];
@@ -160,9 +162,4 @@ export interface Syllable {
 export function syllable(consonant: string, vowel: Vowel): Syllable {
   const v = VOWEL_MARK[vowel];
   return { consonant, vowel, text: v.show(consonant), spoken: v.say(consonant) };
-}
-
-/** Example word for a letter, for hints ("בֵּית, כמו בַּיִת"). */
-export function exampleWord(letter: string): Word | undefined {
-  return WORDS.find((w) => firstLetterOf(w) === letter);
 }

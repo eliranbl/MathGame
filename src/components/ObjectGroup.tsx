@@ -13,6 +13,25 @@ interface Props {
   size?: number;
 }
 
+/** Whole tens drawn as cartons of ten, so 30 is three cartons; the last `crossed` cartons are crossed out. */
+export function TenCartons({ tens, item, crossed = 0, hint = false }: { tens: number; item: ItemType; crossed?: number; hint?: boolean }) {
+  return (
+    <div className="ten-cartons" dir="ltr">
+      {Array.from({ length: tens }, (_, i) => (
+        <span
+          key={i}
+          className={`ten-carton object ${i >= tens - crossed ? 'object--crossed' : ''} ${hint ? 'object--hint' : ''}`}
+          style={{ animationDelay: hint ? `${i * 0.35}s` : `${i * 0.05}s` }}
+        >
+          {Array.from({ length: 10 }, (_, k) => (
+            <Item key={k} type={item} size={18} />
+          ))}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /** Items laid out in rows of five, like a ten-frame, so they are easy to count. */
 export function ObjectGroup({ count, item, crossed = 0, ghost = 0, hint = false, size }: Props) {
   const itemSize = size ?? (count > 10 ? 40 : count > 5 ? 54 : 72);

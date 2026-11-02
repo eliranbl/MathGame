@@ -140,7 +140,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app ${screen.name === 'map' && screen.world === 'reading' ? 'app--reading' : ''}`}>
+    <div className={`app ${screen.name === 'map' && screen.world !== 'math' ? `app--${screen.world}` : ''}`}>
       <Scenery />
       {content}
     </div>

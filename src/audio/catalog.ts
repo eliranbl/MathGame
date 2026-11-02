@@ -3,6 +3,7 @@ import { generateQuestion } from '../engine/generator';
 import { numberWord } from '../engine/hebrew';
 import { ALL_LEVELS } from '../engine/levels';
 import { generateReadingQuestion } from '../engine/reading/generator';
+import { ENGLISH_LETTERS, ENGLISH_WORDS, englishLetterName } from '../engine/reading/english';
 import { LETTER_NAMES, SYLLABLE_CONSONANTS, WORDS, syllable } from '../engine/reading/words';
 import { LINES } from './lines';
 import { toClips, type Speech } from './speech';
@@ -25,9 +26,11 @@ export function allClips(): string[] {
   DINOS.forEach((d) => add(d.name));
 
   // Every number, letter, word and syllable, so rare exercises are covered too.
-  for (let n = 0; n <= 20; n++) add([numberWord(n), `${numberWord(n)} ועוד`, `${numberWord(n)} פחות`]);
+  for (let n = 0; n <= 100; n++) add([numberWord(n), `${numberWord(n)} ועוד`, `${numberWord(n)} פחות`, `${numberWord(n)} כפול`]);
   add(Object.values(LETTER_NAMES));
-  add(WORDS.map((w) => w.nikud));
+  add(WORDS.map((w) => w.text));
+  add(ENGLISH_LETTERS.map(englishLetterName));
+  add(ENGLISH_WORDS.flatMap((w) => [w.text, w.meaning!]));
   for (const c of SYLLABLE_CONSONANTS) for (const v of ['a', 'i', 'e', 'o', 'u'] as const) add(syllable(c, v).spoken);
 
   // The fixed wording around them comes from the generators themselves.

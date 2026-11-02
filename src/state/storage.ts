@@ -42,7 +42,7 @@ export const DEFAULT_SETTINGS: Settings = { muted: false, roundLength: 10 };
 
 export function freshLevels(): Record<number, LevelProgress> {
   const levels: Record<number, LevelProgress> = {};
-  const firsts = [levelsOf('math')[0].id, levelsOf('reading')[0].id];
+  const firsts = [levelsOf('math')[0].id, levelsOf('reading')[0].id, levelsOf('english')[0].id];
   for (const l of ALL_LEVELS) {
     levels[l.id] = {
       unlocked: firsts.includes(l.id),
