@@ -20,6 +20,8 @@ export interface ReadingQuestion {
   choiceStyle: ChoiceStyle;
   /** Spelling level: the letters in order and the shuffled tiles (may include extra letters). */
   spell?: { letters: string[]; tiles: string[] };
+  /** Read-aloud level: the word the child should say. Without a microphone the picture choices are used instead. */
+  say?: string;
   speak: Speech;
   /** Said after the first mistake. */
   hintSpeak: Speech;
@@ -37,11 +39,14 @@ const isCapital = (letter: string) => letter !== letter.toLowerCase();
 const lettersLike = (abc: Alphabet, letter: string) =>
   isCapital(letter) ? abc.letters.map((l) => l.toUpperCase()) : abc.letters;
 
-/** Longest word (in letters) for the difficulty. */
-const maxWordLength = (difficulty: number) => (difficulty < 0.35 ? 3 : difficulty < 0.7 ? 4 : 6);
+/** Hard rounds use every word, however long. */
+const HARD = 0.7;
 
-const wordsUpTo = (abc: Alphabet, difficulty: number, cap = 6) =>
-  abc.words.filter((w) => abc.plain(w).length <= Math.min(cap, maxWordLength(difficulty)));
+/** Longest word (in letters) for the difficulty: short words while learning, no limit once it is hard. */
+const maxWordLength = (difficulty: number) => (difficulty < 0.35 ? 3 : difficulty < HARD ? 4 : Infinity);
+
+const wordsUpTo = (abc: Alphabet, difficulty: number) =>
+  abc.words.filter((w) => abc.plain(w).length <= maxWordLength(difficulty));
 
 /** `answer` plus `count - 1` distractors: preferred ones first, then the rest of the pool. */
 function withDistractors(rng: Rng, answer: string, count: number, preferred: string[], pool: string[]): string[] {
@@ -209,6 +214,25 @@ const makers: Record<ReadingKind, Maker> = {
     };
   },
 
+  sayWord(rng, abc, _level, difficulty, count) {
+    const word = pick(rng, wordsUpTo(abc, difficulty));
+    const letter = firstLetter(abc, word);
+    const others = abc.words.filter((w) => w !== word);
+    const preferred = difficulty >= 0.5 ? others.filter((w) => firstLetter(abc, w) === letter).map((w) => w.emoji) : [];
+    return {
+      key: `say:${abc.plain(word)}`,
+      prompt: { word: word.text },
+      answer: word.emoji,
+      // Pictures to pick from when the browser can't hear the child, as in "read the word".
+      choices: withDistractors(rng, word.emoji, count, preferred, others.map((w) => w.emoji)),
+      choiceStyle: 'emoji',
+      say: abc.plain(word),
+      speak: 'קרא בקול את המילה',
+      hintSpeak: ['המילה מתחילה באות', abc.letterName(letter)],
+      revealSpeak: ['כאן כתוב', word.text],
+    };
+  },
+
   findWord(rng, abc, _level, difficulty, count) {
     const word = pick(rng, wordsUpTo(abc, difficulty));
     const plain = abc.plain(word);
@@ -228,7 +252,7 @@ const makers: Record<ReadingKind, Maker> = {
   },
 
   spell(rng, abc, level, difficulty) {
-    const word = pick(rng, wordsUpTo(abc, difficulty, 4));
+    const word = pick(rng, wordsUpTo(abc, difficulty));
     const letters = [...abc.plain(word)];
     // Extra letters on hard rounds, so the last tile isn't a giveaway.
     const extras = difficulty >= 0.7 ? level.choicesHard : difficulty >= 0.4 ? 1 : level.choicesEasy;

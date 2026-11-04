@@ -1,6 +1,6 @@
 import { DINOS } from '../components/dinos';
 import { generateQuestion } from '../engine/generator';
-import { numberWord } from '../engine/hebrew';
+import { allNumberClips, numberWord } from '../engine/hebrew';
 import { ALL_LEVELS } from '../engine/levels';
 import { generateReadingQuestion } from '../engine/reading/generator';
 import { ENGLISH_LETTERS, ENGLISH_WORDS, englishLetterName } from '../engine/reading/english';
@@ -27,6 +27,7 @@ export function allClips(): string[] {
 
   // Every number, letter, word and syllable, so rare exercises are covered too.
   for (let n = 0; n <= 100; n++) add([numberWord(n), `${numberWord(n)} ועוד`, `${numberWord(n)} פחות`, `${numberWord(n)} כפול`]);
+  add(allNumberClips());
   add(Object.values(LETTER_NAMES));
   add(WORDS.map((w) => w.text));
   add(ENGLISH_LETTERS.map(englishLetterName));
@@ -41,7 +42,8 @@ export function allClips(): string[] {
         const q = level.world === 'math' ? generateQuestion(level, d, [], rng) : generateReadingQuestion(level, d, [], rng);
         add(q.speak);
         add(q.revealSpeak);
-        if (q.world === 'reading') add(q.hintSpeak);
+        if (q.hintSpeak) add(q.hintSpeak);
+        if (q.world === 'math') q.explain?.forEach((s) => add(s.speak));
       }
     }
   }

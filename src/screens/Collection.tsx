@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { LINES } from '../audio/lines';
 import { speak } from '../audio/speech';
-import { getLevel, type World } from '../engine/levels';
+import { getLevel } from '../engine/levels';
+import { WORLDS } from '../engine/worlds';
 import type { Profile } from '../state/storage';
 import { IconButton } from '../components/Common';
 import { Dino } from '../components/Dino';
@@ -11,12 +12,6 @@ interface Props {
   profile: Profile;
   onBack: () => void;
 }
-
-const SECTIONS: { title: string; world: World }[] = [
-  { title: 'חשבון', world: 'math' },
-  { title: 'קריאה', world: 'reading' },
-  { title: 'אנגלית', world: 'english' },
-];
 
 export function Collection({ profile, onBack }: Props) {
   const [dancing, setDancing] = useState<number | null>(null);
@@ -57,9 +52,9 @@ export function Collection({ profile, onBack }: Props) {
         <span className="topbar-spacer" />
       </header>
       <div className="dino-sections">
-        {SECTIONS.map((section) => ({ ...section, dinos: DINOS.filter((d) => getLevel(d.levelId).world === section.world) })).map((section) => (
-          <section key={section.title}>
-            <h3 className="dino-section-title">{section.title}</h3>
+        {WORLDS.map((w) => ({ ...w, dinos: DINOS.filter((d) => getLevel(d.levelId).world === w.id) })).map((section) => (
+          <section key={section.id}>
+            <h3 className="dino-section-title">{section.name}</h3>
             <div className="dino-grid">{section.dinos.map(renderCard)}</div>
           </section>
         ))}

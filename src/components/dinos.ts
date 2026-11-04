@@ -33,6 +33,12 @@ export const DINOS: DinoDef[] = [
   { levelId: 18, name: 'טרודון', body: 'biped', extra: 'spikes', color: '#9d4edd', belly: '#ead7f8', accent: '#ff9e00' },
   { levelId: 19, name: 'פטרנודון', body: 'flyer', extra: 'crest', color: '#00b4d8', belly: '#ccf1f8', accent: '#ff006e' },
   { levelId: 20, name: 'קיסר המספרים', body: 'biped', extra: 'crown', color: '#e63946', belly: '#fbd5d8', accent: '#ffd700' },
+  { levelId: 21, name: 'גיגנוטוזאורוס', body: 'biped', extra: 'spikes', color: '#bc4749', belly: '#f2d4d5', accent: '#6a994e' },
+  { levelId: 22, name: 'פסיטקוזאורוס', body: 'quad', extra: 'frill', color: '#6a994e', belly: '#dbebd0', accent: '#f2e8cf' },
+  { levelId: 23, name: 'ברוכיוזאורוס', body: 'longneck', extra: 'spots', color: '#386641', belly: '#d0e0d4', accent: '#f4a259' },
+  { levelId: 24, name: 'טרודון החכם', body: 'biped', extra: 'crest', color: '#f4a259', belly: '#fde5d0', accent: '#5b8e7d' },
+  { levelId: 25, name: 'אוביראפטור', body: 'biped', extra: 'crest', color: '#5b8e7d', belly: '#d3e5df', accent: '#bc4b51' },
+  { levelId: 26, name: 'אדון החילוק', body: 'biped', extra: 'crown', color: '#264653', belly: '#cfdde2', accent: '#ffd700' },
   // Reading world
   { levelId: 101, name: 'איגואנודון', body: 'biped', extra: 'none', color: '#26a69a', belly: '#c8f2ec', accent: '#00796b' },
   { levelId: 102, name: 'קרנוטאורוס', body: 'biped', extra: 'spikes', color: '#e76f51', belly: '#fbd9cf', accent: '#9d0208' },
@@ -44,6 +50,7 @@ export const DINOS: DinoDef[] = [
   { levelId: 108, name: 'בריוניקס', body: 'biped', extra: 'sail', color: '#118ab2', belly: '#cfeaf4', accent: '#06d6a0' },
   { levelId: 109, name: 'למבאוזאורוס', body: 'biped', extra: 'crest', color: '#ef476f', belly: '#fcd5de', accent: '#ffd166' },
   { levelId: 110, name: 'מלכת האותיות', body: 'biped', extra: 'crown', color: '#b5179e', belly: '#f6d1ee', accent: '#ffd700' },
+  { levelId: 111, name: 'מיקרורפטור', body: 'flyer', extra: 'spots', color: '#00a6a6', belly: '#c9f0f0', accent: '#efca08' },
   // English world
   { levelId: 201, name: 'קומפסוגנתוס', body: 'biped', extra: 'none', color: '#ff70a6', belly: '#ffd9e8', accent: '#70d6ff' },
   { levelId: 202, name: 'קמרזאורוס', body: 'longneck', extra: 'spots', color: '#70d6ff', belly: '#d9f4ff', accent: '#ff9770' },
@@ -55,6 +62,7 @@ export const DINOS: DinoDef[] = [
   { levelId: 208, name: 'אוראנוזאורוס', body: 'biped', extra: 'sail', color: '#f4a261', belly: '#fde6d2', accent: '#2a9d8f' },
   { levelId: 209, name: 'מאמנצ׳יזאורוס', body: 'longneck', extra: 'none', color: '#a2d2ff', belly: '#e6f2ff', accent: '#cdb4db' },
   { levelId: 210, name: 'נסיך האלף-בית', body: 'biped', extra: 'crown', color: '#3a0ca3', belly: '#dcd3f5', accent: '#ffd700' },
+  { levelId: 211, name: 'ספינופס', body: 'quad', extra: 'frill', color: '#f08700', belly: '#fde2c2', accent: '#00a6a6' },
 ];
 
 export const PROFILE_COLORS = ['#6cc24a', '#4d96ff', '#ff6b81', '#ffd23f', '#9b72e8', '#ff9f43'];

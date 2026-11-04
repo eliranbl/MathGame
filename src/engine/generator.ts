@@ -1,5 +1,6 @@
 import type { Speech } from '../audio/speech';
-import { numberWord } from './hebrew';
+import { explainDivision, explainLongDivision, type ExplainStep } from './explain';
+import { numberClips, numberWord } from './hebrew';
 import type { AnswerMode, MathLevelDef, QuestionKind } from './levels';
 import { pick, randInt, shuffle, type Rng } from './random';
 
@@ -14,7 +15,7 @@ export const ITEM_NAMES: Record<ItemType, string> = {
   foot: 'עקבות',
 };
 
-export type Op = '+' | '-' | '×' | null;
+export type Op = '+' | '-' | '×' | '÷' | null;
 
 export interface Question {
   world: 'math';
@@ -29,11 +30,17 @@ export interface Question {
    * double:  a + a = answer
    * half:    total = ? + ?, answer = a = b
    * mul:     a groups of b = answer
+   * div:     a ÷ b = answer (total = a)
+   * divRem:  a ÷ b = answer, remainder answer2
+   * divMissing: ? ÷ b = total, answer = a
+   * longDiv: a ÷ b = answer, with a up to 999
    */
   a: number;
   b: number;
   op: Op;
   answer: number;
+  /** Division with a remainder: the remainder, typed in a second slot. */
+  answer2?: number;
   total: number;
   /** Numbers come in tens; pictures are drawn as cartons of ten. */
   tens: boolean;
@@ -44,8 +51,12 @@ export interface Question {
   mode: AnswerMode;
   choices: number[];
   speak: Speech;
+  /** Said after the first mistake, instead of just "try again". */
+  hintSpeak?: Speech;
   /** Said when the answer is revealed. */
   revealSpeak: Speech;
+  /** Step-by-step "how do you solve it?", opened with the 💡 button. */
+  explain?: ExplainStep[];
 }
 
 export function maxForDifficulty(level: MathLevelDef, difficulty: number): number {
@@ -63,6 +74,7 @@ interface Core {
   b: number;
   op: Op;
   answer: number;
+  answer2?: number;
   total: number;
 }
 
@@ -124,6 +136,27 @@ function makeMul(rng: Rng, max: number, difficulty: number, tables?: number[]): 
   return { kind: 'mul', a, b, op: '×', answer: a * b, total: a * b };
 }
 
+/** a ÷ b with b from the tables: an exact division unless `remainder`. */
+function makeDiv(rng: Rng, max: number, difficulty: number, tables: number[], remainder: boolean): Core {
+  const b = pick(rng, tables);
+  const top = Math.max(1, Math.min(10, Math.floor((max - (remainder ? b - 1 : 0)) / b)));
+  const q = randInt(rng, lowFloor(top, difficulty, 1), top);
+  // Now and then a remainder level has none, so the child checks instead of always adding one.
+  const r = remainder && rng() > 0.15 ? randInt(rng, 1, b - 1) : 0;
+  const a = b * q + r;
+  return remainder
+    ? { kind: 'divRem', a, b, op: '÷', answer: q, answer2: r, total: a }
+    : { kind: 'div', a, b, op: '÷', answer: q, total: a };
+}
+
+/** Long division: a two- or three-digit number divided exactly by a single digit. */
+function makeLongDiv(rng: Rng, max: number, difficulty: number, tables: number[]): Core {
+  const b = pick(rng, tables);
+  const low = Math.max(b * 2, lowFloor(max, difficulty, 12));
+  const q = randInt(rng, Math.ceil(low / b), Math.floor(max / b));
+  return { kind: 'longDiv', a: b * q, b, op: '÷', answer: q, total: b * q };
+}
+
 function makeCore(rng: Rng, level: MathLevelDef, kind: QuestionKind, difficulty: number): Core {
   const max = maxForDifficulty(level, difficulty);
   if (level.step && (kind === 'add' || kind === 'sub')) {
@@ -171,6 +204,16 @@ function makeCore(rng: Rng, level: MathLevelDef, kind: QuestionKind, difficulty:
     }
     case 'mul':
       return makeMul(rng, max, difficulty, level.tables);
+    case 'div':
+      return makeDiv(rng, max, difficulty, level.tables ?? [2, 3, 4, 5], false);
+    case 'divRem':
+      return makeDiv(rng, max, difficulty, level.tables ?? [2, 3, 4, 5], true);
+    case 'divMissing': {
+      const c = makeDiv(rng, max, difficulty, level.tables ?? [2, 3, 4, 5], false);
+      return { ...c, kind: 'divMissing', answer: c.a, total: c.answer };
+    }
+    case 'longDiv':
+      return makeLongDiv(rng, max, difficulty, level.tables ?? [2, 3, 4, 5, 6, 7, 8, 9]);
   }
 }
 
@@ -183,7 +226,13 @@ function tokensFor(c: Core): string[] {
     case 'sub':
     case 'double':
     case 'mul':
+    case 'div':
+    case 'longDiv':
       return [String(c.a), c.op!, String(c.b), '=', '?'];
+    case 'divRem':
+      return [String(c.a), '÷', String(c.b), '=', '?', 'שארית', '?'];
+    case 'divMissing':
+      return ['?', '÷', String(c.b), '=', String(c.total)];
     case 'half':
       return [String(c.total), '=', '?', '+', '?'];
     case 'missing':
@@ -214,6 +263,45 @@ function speakFor(c: Core, item: ItemType): Speech {
       return c.op === '+'
         ? [`${w(c.a)} ועוד`, 'כמה זה', w(c.total)]
         : [`${w(c.total)} פחות`, 'כמה זה', w(c.a)];
+    case 'div':
+    case 'longDiv':
+      return [...numberClips(c.a), 'חלקי', w(c.b), 'כמה זה?'];
+    case 'divRem':
+      return [...numberClips(c.a), 'חלקי', w(c.b), 'כמה זה, ומה השארית?'];
+    case 'divMissing':
+      return ['איזה מספר חלקי', w(c.b), 'שווה', w(c.total)];
+  }
+}
+
+/** Division hints point to the multiplication behind it, without giving the answer away. */
+function hintFor(c: Core): Speech | undefined {
+  const w = numberWord;
+  switch (c.kind) {
+    case 'div':
+    case 'longDiv':
+      return ['איזה מספר כפול', w(c.b), 'שווה', ...numberClips(c.a)];
+    case 'divRem':
+      return ['איזה מספר כפול', w(c.b), 'הכי קרוב ל', ...numberClips(c.a), 'בלי לעבור אותו?'];
+    case 'divMissing':
+      return ['חשוב על כפל:', `${w(c.b)} כפול`, w(c.total), 'כמה זה?'];
+    default:
+      return undefined;
+  }
+}
+
+/** "The answer is 4, because 3 times 4 is 12." */
+function revealFor(c: Core): Speech {
+  const w = numberWord;
+  const answer = ['התשובה היא', ...numberClips(c.answer)];
+  switch (c.kind) {
+    case 'div':
+      return [...answer, 'כי', `${w(c.b)} כפול`, w(c.answer), 'זה', ...numberClips(c.a)];
+    case 'divRem':
+      return c.answer2 ? [...answer, 'ושארית', w(c.answer2)] : [...answer, 'בלי שארית'];
+    case 'divMissing':
+      return [...answer, 'כי', `${w(c.b)} כפול`, w(c.total), 'זה', ...numberClips(c.a)];
+    default:
+      return answer;
   }
 }
 
@@ -225,6 +313,7 @@ export function makeChoices(rng: Rng, c: Core, count: number, max: number, step 
   // Common slips: using the opposite operation, or one group too many/few.
   if (c.kind === 'add' || c.kind === 'double') candidates.add(Math.abs(c.a - c.b));
   if (c.kind === 'sub') candidates.add(c.a + c.b);
+  if (c.kind === 'div') [c.b, c.a - c.b].forEach((n) => candidates.add(n));
   if (c.kind === 'mul') [c.a + c.b, c.answer - c.b, c.answer + c.b, c.answer - c.a, c.answer + c.a].forEach((n) => candidates.add(n));
   const valid = shuffle(rng, [...candidates].filter((n) => n >= minValue && n <= upper && n !== c.answer && n % step === 0));
   const chosen = new Set<number>([c.answer, ...valid.slice(0, count - 1)]);
@@ -260,7 +349,14 @@ export function generateQuestion(
     mode: level.mode,
     choices: level.mode === 'choice' ? makeChoices(rng, c, level.choiceCount ?? 3, max, level.step) : [],
     speak: speakFor(c, item),
-    revealSpeak: ['התשובה היא', numberWord(c.answer)],
+    hintSpeak: hintFor(c),
+    revealSpeak: revealFor(c),
+    explain:
+      c.kind === 'longDiv'
+        ? explainLongDivision(c.a, c.b)
+        : c.kind === 'div' || c.kind === 'divRem' || c.kind === 'divMissing'
+          ? explainDivision(c.a, c.b, item, c.kind === 'divMissing')
+          : undefined,
   };
 }
 

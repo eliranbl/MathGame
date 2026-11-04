@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import { LINES } from '../audio/lines';
 import { speak } from '../audio/speech';
 import { sfx } from '../audio/sfx';
-import type { LevelDef } from '../engine/levels';
 import type { RoundOutcome, RoundResult } from '../state/useGameData';
 import { Confetti, Stars } from '../components/Common';
 import { Dino } from '../components/Dino';
-import { dinoForLevel } from '../components/dinos';
+import type { DinoDef } from '../components/dinos';
 
 interface Props {
-  level: LevelDef;
+  dino: DinoDef;
   result: RoundResult;
   outcome: RoundOutcome;
   hasNext: boolean;
@@ -35,15 +34,22 @@ function BigEgg({ cracked, color }: { cracked: boolean; color: string }) {
   );
 }
 
-export function RewardScreen({ level, result, outcome, hasNext, onReplay, onNext, onMap }: Props) {
-  const dino = dinoForLevel(level.id);
+export function RewardScreen({ dino, result, outcome, hasNext, onReplay, onNext, onMap }: Props) {
   const [egg, setEgg] = useState<'whole' | 'cracking' | 'hatched'>('whole');
   const hatched = egg === 'hatched';
 
   useEffect(() => {
     if (outcome.passed) {
       sfx.levelUp();
-      speak(outcome.newDino ? LINES.passedWithEgg : LINES.passed);
+      speak(
+        outcome.newDino
+          ? LINES.passedWithEgg
+          : outcome.trophy
+            ? LINES.trophy
+            : outcome.challengeOpened
+              ? LINES.challengeOpened
+              : LINES.passed,
+      );
     } else {
       speak(LINES.almost);
     }
@@ -56,7 +62,7 @@ export function RewardScreen({ level, result, outcome, hasNext, onReplay, onNext
     setTimeout(() => {
       setEgg('hatched');
       sfx.levelUp();
-      speak([LINES.hatched, dino.name]);
+      speak(outcome.challengeOpened ? [LINES.hatched, dino.name, LINES.challengeOpened] : [LINES.hatched, dino.name]);
     }, 500);
   };
 
@@ -86,6 +92,14 @@ export function RewardScreen({ level, result, outcome, hasNext, onReplay, onNext
         ) : (
           <Dino dino={dino} mood={outcome.passed ? 'cheer' : 'think'} size={170} />
         )}
+
+        {outcome.trophy && (
+          <div className="reward-trophy">
+            <span aria-hidden="true">🏆</span> {outcome.trophy}
+          </div>
+        )}
+
+        {outcome.challengeOpened && (!outcome.newDino || hatched) && <div className="reward-unlock">🏆 נפתח אתגר בלי סוף!</div>}
 
         {outcome.unlockedLevel && (!outcome.newDino || hatched) && <div className="reward-unlock">🔓 שלב חדש נפתח!</div>}
 

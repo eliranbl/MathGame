@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { isPassed } from '../engine/adaptive';
-import { getLevel, levelsOf, nextLevelId } from '../engine/levels';
+import { TROPHY_EVERY } from '../engine/challenge';
+import { SPEED_SECONDS } from '../engine/speed';
+import { getLevel, levelsOf, nextLevelId, type World } from '../engine/levels';
 import { createProfile, freshLevels, loadData, saveData, type GameData, type Profile, type Settings } from './storage';
 
 export interface RoundResult {
@@ -19,6 +21,10 @@ export interface RoundOutcome {
   /** Level id of a dinosaur hatched for the first time in this round. */
   newDino: number | null;
   unlockedLevel: number | null;
+  /** The world's last level was passed for the first time, opening its endless challenge. */
+  challengeOpened?: boolean;
+  /** Challenge: the stage just passed, when it earned a trophy. */
+  trophy?: number;
 }
 
 export function useGameData() {
@@ -51,7 +57,7 @@ export function useGameData() {
 
   const resetProfile = useCallback(
     (id: string) =>
-      updateProfile(id, (p) => ({ ...p, totalScore: 0, playSeconds: 0, levels: freshLevels(), mistakes: {}, collected: [] })),
+      updateProfile(id, (p) => ({ ...p, totalScore: 0, playSeconds: 0, levels: freshLevels(), mistakes: {}, collected: [], challenge: {}, speedBest: 0 })),
     [updateProfile],
   );
 
@@ -107,7 +113,48 @@ export function useGameData() {
           collected: newDino ? [...p.collected, newDino] : p.collected,
         };
       });
-      return { passed, newDino, unlockedLevel };
+      const challengeOpened = passed && !next && !profile.levels[r.levelId].completed;
+      return { passed, newDino, unlockedLevel, challengeOpened };
+    },
+    [profile, updateProfile],
+  );
+
+  /** Records a finished challenge stage: a pass moves on to the next stage, every fifth one earns a trophy. */
+  const recordChallenge = useCallback(
+    (world: World, r: RoundResult): RoundOutcome => {
+      if (!profile) return { passed: false, newDino: null, unlockedLevel: null };
+      const passed = isPassed(r.correctFirstTry, r.total);
+      const stage = (profile.challenge[world]?.passed ?? 0) + 1;
+      const trophy = passed && stage % TROPHY_EVERY === 0 ? stage : undefined;
+
+      updateProfile(profile.id, (p) => {
+        const mistakes = { ...p.mistakes };
+        for (const key of r.mistakes) mistakes[key] = (mistakes[key] ?? 0) + 1;
+        return {
+          ...p,
+          challenge: { ...p.challenge, [world]: { passed: stage - (passed ? 0 : 1) } },
+          mistakes,
+          totalScore: p.totalScore + r.score,
+          playSeconds: p.playSeconds + r.seconds,
+        };
+      });
+      return { passed, newDino: null, unlockedLevel: null, trophy };
+    },
+    [profile, updateProfile],
+  );
+
+  /** Records a speed challenge: five points a fact, and whether it beat the record. */
+  const recordSpeed = useCallback(
+    (score: number): boolean => {
+      if (!profile) return false;
+      const isRecord = score > (profile.speedBest ?? 0);
+      updateProfile(profile.id, (p) => ({
+        ...p,
+        speedBest: Math.max(p.speedBest ?? 0, score),
+        totalScore: p.totalScore + score * 5,
+        playSeconds: p.playSeconds + SPEED_SECONDS,
+      }));
+      return isRecord;
     },
     [profile, updateProfile],
   );
@@ -122,5 +169,7 @@ export function useGameData() {
     unlockUpTo,
     updateSettings,
     recordRound,
+    recordChallenge,
+    recordSpeed,
   };
 }

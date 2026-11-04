@@ -11,6 +11,7 @@ interface Props {
 export function ReadingView({ question: q, placed, revealed, onReplay }: Props) {
   const font = q.lang === 'en' ? 'eng' : 'heb';
   const dir = q.lang === 'en' ? 'ltr' : 'rtl';
+  const lang = q.lang === 'en' ? 'en' : undefined;
   return (
     <div className="reading">
       {q.prompt.listen && (
@@ -19,10 +20,10 @@ export function ReadingView({ question: q, placed, revealed, onReplay }: Props) 
         </button>
       )}
       {q.prompt.emoji && <div className="reading-emoji">{q.prompt.emoji}</div>}
-      {q.prompt.letter && <div className={`reading-letter ${font}`}>{q.prompt.letter}</div>}
-      {q.prompt.word && <div className={`reading-word ${font}`} dir={dir}>{q.prompt.word}</div>}
+      {q.prompt.letter && <div className={`reading-letter ${font}`} lang={lang}>{q.prompt.letter}</div>}
+      {q.prompt.word && <div className={`reading-word ${font}`} dir={dir} lang={lang}>{q.prompt.word}</div>}
       {q.spell && (
-        <div className="spell-slots" dir={dir}>
+        <div className="spell-slots" dir={dir} lang={lang} style={{ ['--letters' as string]: q.spell.letters.length }}>
           {q.spell.letters.map((letter, i) => {
             const filled = i < placed || revealed;
             return (

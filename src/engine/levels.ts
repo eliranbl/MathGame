@@ -1,4 +1,4 @@
-export type QuestionKind = 'count' | 'compare' | 'add' | 'sub' | 'missing' | 'double' | 'half' | 'mul';
+export type QuestionKind = 'count' | 'compare' | 'add' | 'sub' | 'missing' | 'double' | 'half' | 'mul' | 'div' | 'divRem' | 'divMissing' | 'longDiv';
 export type AnswerMode = 'choice' | 'pad';
 
 export type World = 'math' | 'reading' | 'english';
@@ -21,7 +21,7 @@ export interface MathLevelDef {
   crossTen?: boolean;
   /** Every number is a multiple of this (10 for "30 + 20"). */
   step?: number;
-  /** Multiplication: one factor is taken from these tables. */
+  /** Multiplication: one factor is taken from these tables. Division: the divisor is. */
   tables?: number[];
   choiceCount?: number;
 }
@@ -47,6 +47,12 @@ export const LEVELS: MathLevelDef[] = [
   { world: 'math', id: 18, name: 'חיבור וחיסור עד מאה', kinds: ['add', 'sub'], maxEasy: 60, maxHard: 99, pictures: false, mode: 'pad', crossTen: true },
   { world: 'math', id: 19, name: 'קבוצות שוות', kinds: ['mul'], maxEasy: 12, maxHard: 25, pictures: true, mode: 'choice', choiceCount: 3 },
   { world: 'math', id: 20, name: 'לוח הכפל', kinds: ['mul'], maxEasy: 50, maxHard: 100, pictures: false, mode: 'pad', tables: [2, 5, 10] },
+  { world: 'math', id: 21, name: 'מחלקים שווה בשווה', kinds: ['div'], maxEasy: 10, maxHard: 20, pictures: true, mode: 'choice', choiceCount: 3, tables: [2, 3, 4, 5] },
+  { world: 'math', id: 22, name: 'חילוק ב־2, 5 ו־10', kinds: ['div'], maxEasy: 50, maxHard: 100, pictures: false, mode: 'pad', tables: [2, 5, 10] },
+  { world: 'math', id: 23, name: 'לוח החילוק', kinds: ['div'], maxEasy: 50, maxHard: 100, pictures: false, mode: 'pad', tables: [2, 3, 4, 5, 6, 7, 8, 9, 10] },
+  { world: 'math', id: 24, name: 'חילוק עם שארית', kinds: ['divRem'], maxEasy: 30, maxHard: 89, pictures: false, mode: 'pad', tables: [2, 3, 4, 5, 6, 7, 8, 9] },
+  { world: 'math', id: 25, name: 'המספר החסר בחילוק', kinds: ['divMissing', 'div'], maxEasy: 50, maxHard: 100, pictures: false, mode: 'pad', tables: [2, 3, 4, 5, 6, 7, 8, 9, 10] },
+  { world: 'math', id: 26, name: 'חילוק ארוך', kinds: ['longDiv'], maxEasy: 99, maxHard: 999, pictures: false, mode: 'pad', tables: [2, 3, 4, 5, 6, 7, 8, 9] },
 ];
 
 export type ReadingKind =
@@ -59,7 +65,8 @@ export type ReadingKind =
   | 'findWord'
   | 'spell'
   | 'matchCase'
-  | 'listenWord';
+  | 'listenWord'
+  | 'sayWord';
 
 export type Vowel = 'a' | 'i' | 'e' | 'o' | 'u';
 
@@ -88,6 +95,7 @@ export const READING_LEVELS: ReadingLevelDef[] = [
   { world: 'reading', id: 108, name: 'קוראים מילה', kind: 'readWord', choicesEasy: 3, choicesHard: 3 },
   { world: 'reading', id: 109, name: 'מוצאים מילה', kind: 'findWord', choicesEasy: 3, choicesHard: 3 },
   { world: 'reading', id: 110, name: 'בונים מילה', kind: 'spell', choicesEasy: 0, choicesHard: 2 },
+  { world: 'reading', id: 111, name: 'קוראים בקול', kind: 'sayWord', choicesEasy: 3, choicesHard: 3 },
 ];
 
 const UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -103,14 +111,17 @@ export const ENGLISH_LEVELS: ReadingLevelDef[] = [
   { world: 'english', id: 208, name: 'קוראים באנגלית', kind: 'readWord', choicesEasy: 3, choicesHard: 3 },
   { world: 'english', id: 209, name: 'מוצאים מילה באנגלית', kind: 'findWord', choicesEasy: 3, choicesHard: 3 },
   { world: 'english', id: 210, name: 'כותבים באנגלית', kind: 'spell', choicesEasy: 0, choicesHard: 2 },
+  { world: 'english', id: 211, name: 'קוראים בקול באנגלית', kind: 'sayWord', choicesEasy: 3, choicesHard: 3 },
 ];
 
 export type LevelDef = MathLevelDef | ReadingLevelDef;
 
 export const ALL_LEVELS: LevelDef[] = [...LEVELS, ...READING_LEVELS, ...ENGLISH_LEVELS];
 
+const BY_WORLD: Record<World, LevelDef[]> = { math: LEVELS, reading: READING_LEVELS, english: ENGLISH_LEVELS };
+
 export function levelsOf(world: World): LevelDef[] {
-  return world === 'math' ? LEVELS : world === 'reading' ? READING_LEVELS : ENGLISH_LEVELS;
+  return BY_WORLD[world];
 }
 
 export function getLevel(id: number): LevelDef {

@@ -1,4 +1,5 @@
-import { ALL_LEVELS, levelsOf } from '../engine/levels';
+import { ALL_LEVELS, levelsOf, type World } from '../engine/levels';
+import { WORLDS } from '../engine/worlds';
 
 export interface LevelProgress {
   unlocked: boolean;
@@ -8,6 +9,12 @@ export interface LevelProgress {
   rounds: number;
   answered: number;
   correctFirstTry: number;
+}
+
+/** The endless challenge at the end of a world. */
+export interface ChallengeProgress {
+  /** Stages passed so far; the next one to play is `passed + 1`. */
+  passed: number;
 }
 
 export interface Profile {
@@ -21,12 +28,17 @@ export interface Profile {
   mistakes: Record<string, number>;
   /** Level ids whose dinosaur hatched. */
   collected: number[];
+  challenge: Partial<Record<World, ChallengeProgress>>;
+  /** Most facts solved in one speed challenge. */
+  speedBest?: number;
   createdAt: number;
 }
 
 export interface Settings {
   muted: boolean;
   roundLength: number;
+  /** Read-aloud levels listen through the microphone. Off until a parent allows it, since the voice goes to the browser's recognition service. */
+  micEnabled: boolean;
 }
 
 export interface GameData {
@@ -38,11 +50,11 @@ export interface GameData {
 
 const STORAGE_KEY = 'dino-math:v1';
 
-export const DEFAULT_SETTINGS: Settings = { muted: false, roundLength: 10 };
+export const DEFAULT_SETTINGS: Settings = { muted: false, roundLength: 10, micEnabled: false };
 
 export function freshLevels(): Record<number, LevelProgress> {
   const levels: Record<number, LevelProgress> = {};
-  const firsts = [levelsOf('math')[0].id, levelsOf('reading')[0].id, levelsOf('english')[0].id];
+  const firsts = WORLDS.map((w) => levelsOf(w.id)[0].id);
   for (const l of ALL_LEVELS) {
     levels[l.id] = {
       unlocked: firsts.includes(l.id),
@@ -67,6 +79,7 @@ export function createProfile(name: string, color: string): Profile {
     levels: freshLevels(),
     mistakes: {},
     collected: [],
+    challenge: {},
     createdAt: Date.now(),
   };
 }
@@ -82,7 +95,10 @@ export function loadData(): GameData {
     const parsed = JSON.parse(raw) as GameData;
     if (parsed.version !== 1 || !Array.isArray(parsed.profiles)) return emptyData();
     // Fill in any levels added after the profile was created.
-    for (const p of parsed.profiles) p.levels = { ...freshLevels(), ...p.levels };
+    for (const p of parsed.profiles) {
+      p.levels = { ...freshLevels(), ...p.levels };
+      p.challenge ??= {};
+    }
     return { ...parsed, settings: { ...DEFAULT_SETTINGS, ...parsed.settings } };
   } catch {
     return emptyData();

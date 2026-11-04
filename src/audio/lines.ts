@@ -12,6 +12,13 @@ export const LINES = {
   almost: 'כמעט! עוד קצת אימון וזה יצליח',
   hatched: 'בקע לך',
   worlds: ['חשבון', 'קריאה', 'אנגלית'],
+  challenge: 'אתגר',
+  challengeOpened: 'וואו! נפתח אתגר בלי סוף',
+  trophy: 'וואו! קיבלת גביע',
+  speedStart: 'מוכנים? מתחילים!',
+  timeUp: 'נגמר הזמן! כל הכבוד',
+  newRecord: 'וואו! שברת שיא!',
+  notHeard: ['לא שמעתי טוב, ננסה שוב?', 'אפשר להגיד שוב, בקול?'],
 };
 
 const randomOf = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -19,4 +26,5 @@ const randomOf = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 export const phrases = {
   praise: () => randomOf(LINES.praise),
   tryAgain: () => randomOf(LINES.tryAgain),
+  notHeard: () => randomOf(LINES.notHeard),
 };

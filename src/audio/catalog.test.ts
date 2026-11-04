@@ -18,7 +18,8 @@ describe('voice clips', () => {
         const q = level.world === 'math' ? generateQuestion(level, d) : generateReadingQuestion(level, d);
         check(q.speak);
         check(q.revealSpeak);
-        if (q.world === 'reading') check(q.hintSpeak);
+        if (q.hintSpeak) check(q.hintSpeak);
+        if (q.world === 'math') q.explain?.forEach((s) => check(s.speak));
       }
     }
   });

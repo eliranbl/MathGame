@@ -11,6 +11,9 @@ import edge_tts
 
 VOICE = "he-IL-HilaNeural"
 ENGLISH_VOICE = "en-US-AnaNeural"
+# A lone English letter is over in a blink; a slower, clearer voice keeps B, V and M apart.
+LETTER_VOICE = "en-US-AriaNeural"
+LETTER_RATE = "-30%"
 RATE = "-10%"
 OUT = "public/audio"
 
@@ -22,8 +25,12 @@ async def record(clip, sem):
     async with sem:
         for attempt in range(3):
             try:
-                voice = VOICE if re.search("[֐-׿]", clip["text"]) else ENGLISH_VOICE
-                await edge_tts.Communicate(clip["text"], voice, rate=RATE).save(path)
+                text = clip["text"]
+                if re.fullmatch("[A-Z]", text):
+                    voice, rate = LETTER_VOICE, LETTER_RATE
+                else:
+                    voice, rate = (VOICE if re.search("[֐-׿]", text) else ENGLISH_VOICE), RATE
+                await edge_tts.Communicate(text, voice, rate=rate).save(path)
                 return True
             except Exception as e:  # network hiccups: retry
                 if attempt == 2:

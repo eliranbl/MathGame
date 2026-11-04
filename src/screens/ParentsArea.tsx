@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { ALL_LEVELS, levelsOf, type World } from '../engine/levels';
+import { WORLDS as WORLD_LIST } from '../engine/worlds';
 import type { Profile, Settings } from '../state/storage';
 import { IconButton } from '../components/Common';
+import { PrivacyPanel } from '../components/ConsentBanner';
+import { InstallPanel } from '../components/InstallBanner';
+import { canListen } from '../audio/listen';
+import { trophiesFor } from '../engine/challenge';
 
 interface Props {
   profiles: Profile[];
@@ -41,6 +46,7 @@ function Gate({ onPass, onBack }: { onPass: () => void; onBack: () => void }) {
       <input
         className="text-input"
         inputMode="numeric"
+        aria-label="התשובה לתרגיל"
         value={value}
         onChange={(e) => {
           setValue(e.target.value.replace(/\D/g, ''));
@@ -48,7 +54,7 @@ function Gate({ onPass, onBack }: { onPass: () => void; onBack: () => void }) {
         }}
         autoFocus
       />
-      {error && <p className="gate-error">לא נכון, נסו שוב</p>}
+      {error && <p className="gate-error" role="alert">לא נכון, נסו שוב</p>}
       <div className="form-actions">
         <button type="submit" className="big-btn">
           כניסה
@@ -68,8 +74,8 @@ const formatTime = (seconds: number) => {
 
 const percent = (part: number, total: number) => (total ? `${Math.round((part / total) * 100)}%` : '—');
 
-const WORLD_NAMES: Record<World, string> = { math: 'חשבון', reading: 'קריאה', english: 'אנגלית' };
-const WORLDS: World[] = ['math', 'reading', 'english'];
+const WORLD_NAMES = Object.fromEntries(WORLD_LIST.map((w) => [w.id, w.name])) as Record<World, string>;
+const WORLDS = WORLD_LIST.map((w) => w.id);
 
 const READING_MISTAKES: Record<string, string> = {
   letter: 'זיהוי אות',
@@ -140,7 +146,22 @@ export function ParentsArea({ profiles, activeId, settings, onBack, onUpdateSett
             <span>קול והקראה</span>
             <input type="checkbox" checked={!settings.muted} onChange={(e) => onUpdateSettings({ muted: !e.target.checked })} />
           </label>
+          <label className="row">
+            <span>קריאה בקול עם מיקרופון</span>
+            {canListen() ? (
+              <input type="checkbox" checked={settings.micEnabled} onChange={(e) => onUpdateSettings({ micEnabled: e.target.checked })} />
+            ) : (
+              <span className="muted">לא נתמך בדפדפן הזה</span>
+            )}
+          </label>
+          <p className="muted">
+            בשלבי "קוראים בקול" הילד מקריא מילה למיקרופון. הקול נשלח לשירות זיהוי הדיבור של הדפדפן (Google או Apple) כדי
+            לבדוק את התשובה, ולא נשמר אצלנו. כשהאפשרות כבויה, בוחרים תמונה במקום.
+          </p>
         </section>
+
+        <InstallPanel />
+        <PrivacyPanel />
 
         {profiles.length > 0 && (
           <div className="tabs">
@@ -168,6 +189,10 @@ export function ParentsArea({ profiles, activeId, settings, onBack, onUpdateSett
                 <div>
                   <b>{profile.collected.length}</b>
                   <span>דינוזאורים</span>
+                </div>
+                <div>
+                  <b>{Object.values(profile.challenge).reduce((n, c) => n + trophiesFor(c?.passed ?? 0), 0)}</b>
+                  <span>גביעים</span>
                 </div>
                 <div>
                   <b>{formatTime(profile.playSeconds)}</b>

@@ -93,6 +93,11 @@ describe('generateReadingQuestion', () => {
           if (q.kind === 'readWord') {
             expect(abc.words.find((w) => w.text === q.prompt.word)!.emoji).toBe(q.answer);
           }
+          if (q.kind === 'sayWord') {
+            const word = abc.words.find((w) => w.text === q.prompt.word)!;
+            expect(word.emoji).toBe(q.answer);
+            expect(q.say).toBe(abc.plain(word));
+          }
           if (q.kind === 'findWord') {
             expect(findWord(q.prompt.emoji!).text).toBe(q.answer);
           }
@@ -103,6 +108,15 @@ describe('generateReadingQuestion', () => {
       }
     });
   }
+
+  it('reaches the longest words on hard rounds', () => {
+    for (const level of [...READING_LEVELS, ...ENGLISH_LEVELS].filter((l) => l.kind === 'readWord')) {
+      const abc = alphabetOf(level);
+      const longest = Math.max(...abc.words.map((w) => abc.plain(w).length));
+      const seen = Array.from({ length: 2000 }, () => generateReadingQuestion(level, 1).prompt.word!);
+      expect(Math.max(...seen.map((t) => abc.plain(abc.words.find((w) => w.text === t)!).length))).toBe(longest);
+    }
+  });
 
   it('keeps short words for easy rounds', () => {
     for (const level of [...READING_LEVELS, ...ENGLISH_LEVELS].filter((l) => l.kind === 'readWord')) {

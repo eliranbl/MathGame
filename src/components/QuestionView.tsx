@@ -1,9 +1,10 @@
 import type { Question } from '../engine/generator';
 import { ObjectGroup, TenCartons } from './ObjectGroup';
+import { ShareView } from './ShareView';
 
 interface Props {
   question: Question;
-  /** Digits typed on the number pad. */
+  /** Digits typed on the number pad; "4|1" fills two slots (quotient and remainder). */
   typed?: string;
   hint: boolean;
   revealed: boolean;
@@ -12,15 +13,23 @@ interface Props {
   onPickGroup: (value: number) => void;
 }
 
-function Expression({ q, typed, revealed }: { q: Question; typed?: string; revealed: boolean }) {
+function Expression({ q, typed = '', revealed }: { q: Question; typed?: string; revealed: boolean }) {
+  const parts = typed.split('|');
+  const answers = [q.answer, q.answer2];
+  let slot = -1;
   return (
-    <div className="expression" dir="ltr">
+    <div className={`expression ${q.tokens.length > 5 ? 'expression--long' : ''}`} dir="ltr">
       {q.tokens.map((t, i) => {
-        if (t !== '?') return <span key={i} className={/\d/.test(t) ? 'expr-num' : 'expr-op'}>{t}</span>;
-        const value = revealed ? String(q.answer) : typed || '?';
+        if (t !== '?') return <span key={i} className={/\d/.test(t) ? 'expr-num' : t.length > 1 ? 'expr-word' : 'expr-op'}>{t}</span>;
+        slot++;
+        const mine = parts[slot] ?? '';
+        const active = !revealed && slot === parts.length - 1;
         return (
-          <span key={i} className={`expr-slot ${revealed ? 'expr-slot--revealed' : ''} ${typed ? 'expr-slot--typed' : ''}`}>
-            {value}
+          <span
+            key={i}
+            className={`expr-slot ${revealed ? 'expr-slot--revealed' : ''} ${mine ? 'expr-slot--typed' : ''} ${active && q.answer2 !== undefined ? 'expr-slot--active' : ''}`}
+          >
+            {revealed ? String(answers[slot]) : mine || '?'}
           </span>
         );
       })}
@@ -74,6 +83,9 @@ function Pictures({ q, hint }: { q: Question; hint: boolean }) {
       );
     case 'sub':
       return <ObjectGroup count={q.a} item={q.item} crossed={q.b} hint={hint} />;
+    case 'div':
+    case 'divRem':
+      return <ShareView total={q.a} groups={q.b} dealt={0} item={q.item} hint={hint} />;
     case 'missing':
       return <ObjectGroup count={q.total} item={q.item} ghost={q.answer} hint={hint} />;
     default:

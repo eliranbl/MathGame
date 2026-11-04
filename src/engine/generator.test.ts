@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { generateQuestion, maxForDifficulty } from './generator';
-import { numberWord } from './hebrew';
+import { explainLongDivision } from './explain';
+import { numberClips, numberWord } from './hebrew';
 import { LEVELS } from './levels';
 
 const DIFFICULTIES = [0, 0.3, 0.6, 1];
@@ -51,6 +52,29 @@ describe('generateQuestion', () => {
               if (level.tables) expect(level.tables.includes(q.a) || level.tables.includes(q.b)).toBe(true);
               else expect(Math.max(q.a, q.b)).toBeLessThanOrEqual(5);
               break;
+            case 'div':
+            case 'longDiv':
+              expect(q.answer * q.b).toBe(q.a);
+              expect(q.a).toBeLessThanOrEqual(max);
+              if (level.tables) expect(level.tables).toContain(q.b);
+              if (q.kind === 'div') expect(q.answer).toBeLessThanOrEqual(10);
+              break;
+            case 'divRem':
+              expect(q.answer * q.b + q.answer2!).toBe(q.a);
+              expect(q.answer2).toBeGreaterThanOrEqual(0);
+              expect(q.answer2).toBeLessThan(q.b);
+              expect(q.tokens.filter((t) => t === '?')).toHaveLength(2);
+              break;
+            case 'divMissing':
+              expect(q.answer).toBe(q.b * q.total);
+              expect(q.tokens[0]).toBe('?');
+              break;
+          }
+
+          // Every division can be explained, and the explanation ends on the answer.
+          if (q.op === '÷') {
+            expect(q.explain!.length).toBeGreaterThan(2);
+            expect(q.explain![q.explain!.length - 1].text).toContain(String(q.answer));
           }
 
           if (level.step) {
@@ -94,6 +118,27 @@ describe('generateQuestion', () => {
       (q) => (q.kind === 'add' && (q.a % 10) + (q.b % 10) >= 10) || (q.kind === 'sub' && q.a % 10 < q.b % 10),
     );
     expect(carrying.length).toBeGreaterThan(200);
+  });
+
+  it('reaches three-digit numbers in long division on hard rounds', () => {
+    const level = LEVELS.find((l) => l.kinds.includes('longDiv'))!;
+    const big = Array.from({ length: 200 }, () => generateQuestion(level, 1)).filter((q) => q.a >= 100);
+    expect(big.length).toBeGreaterThan(100);
+  });
+
+  it('explains long division digit by digit', () => {
+    const steps = explainLongDivision(156, 4);
+    // 15 ÷ 4 = 3 r 3, bring down 6 → 36 ÷ 4 = 9: answer 39.
+    expect(steps.map((s) => s.visual?.type === 'longDiv' && s.visual.quotient)).toContain('3');
+    expect(steps[steps.length - 1].text).toContain('156 ÷ 4 = 39');
+    expect(steps.some((s) => s.text.includes('קטן מ־4'))).toBe(true);
+  });
+
+  it('says every number up to 999 in clips', () => {
+    expect(numberClips(100)).toEqual(['מאה']);
+    expect(numberClips(103)).toEqual(['מאה', 'ושלוש']);
+    expect(numberClips(120)).toEqual(['מאה', 'ועשרים']);
+    expect(numberClips(357)).toEqual(['שלוש מאות', 'חמישים ושבע']);
   });
 
   it('says every number up to 100 in words', () => {

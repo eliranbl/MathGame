@@ -3,6 +3,8 @@ import { LINES } from '../audio/lines';
 import { speak } from '../audio/speech';
 import type { Profile } from '../state/storage';
 import { Dino } from '../components/Dino';
+import { ConsentBanner } from '../components/ConsentBanner';
+import { InstallBanner } from '../components/InstallBanner';
 import { PROFILE_COLORS, avatarDino } from '../components/dinos';
 
 interface Props {
@@ -26,7 +28,7 @@ export function ProfileSelect({ profiles, onSelect, onAdd }: Props) {
 
   return (
     <div className="screen profiles">
-      <h1 className="title">חשבון עם דינו</h1>
+      <h1 className="title">לומדים עם דינו</h1>
       <p className="subtitle">מי משחק?</p>
 
       <div className="profile-grid">
@@ -85,6 +87,12 @@ export function ProfileSelect({ profiles, onSelect, onAdd }: Props) {
           </div>
         </form>
       )}
+      <p className="legal-links legal-links--footer">
+        <a href="/privacy.html">מדיניות פרטיות</a>
+        <a href="/accessibility.html">הצהרת נגישות</a>
+      </p>
+      <ConsentBanner />
+      <InstallBanner />
     </div>
   );
 }

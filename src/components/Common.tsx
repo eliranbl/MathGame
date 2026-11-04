@@ -4,7 +4,11 @@ export type EggState = 'pending' | 'current' | 'first' | 'second' | 'missed';
 
 export function ProgressEggs({ states }: { states: EggState[] }) {
   return (
-    <div className="progress-eggs" aria-label="התקדמות">
+    <div
+      className="progress-eggs"
+      role="img"
+      aria-label={`התקדמות: ${states.filter((s) => s !== 'pending' && s !== 'current').length} מתוך ${states.length}`}
+    >
       {states.map((s, i) => (
         <span key={i} className={`progress-egg progress-egg--${s}`} />
       ))}

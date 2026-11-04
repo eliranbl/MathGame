@@ -7,7 +7,8 @@ interface Props {
   onPick: (value: number) => void;
 }
 
-const COLORS = ['#ff9f43', '#4d96ff', '#9b72e8', '#ff6b81'];
+// Each deep enough for the white numbers and letters on them (WCAG AA, large text).
+const COLORS = ['#db7310', '#3d86ee', '#9b72e8', '#f2557a'];
 
 export function ChoiceButtons({ choices, wrongPicks, correct, disabled, onPick }: Props) {
   return (

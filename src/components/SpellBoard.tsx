@@ -23,14 +23,15 @@ interface Props {
 /** Shuffled letter tiles for building a word; used tiles leave an empty spot. */
 export function SpellTiles({ tiles, lang, placed, wrong, hintTile, disabled, onPick }: Props) {
   return (
-    <div className="choices choices--spell">
+    <div className={`choices choices--spell ${tiles.length > 7 ? 'choices--many' : ''}`}>
       {tiles.map((t, i) => {
         const used = placed.includes(i);
         return (
           <button
             key={i}
+            lang={lang === 'en' ? 'en' : undefined}
             className={`choice tile tile--letter ${lang === 'en' ? 'eng' : 'heb'} ${used ? 'tile--used' : ''} ${wrong.includes(i) ? 'choice--wrong' : ''} ${hintTile === i ? 'tile--hint' : ''}`}
-            style={{ ['--choice-color' as string]: '#4d96ff' }}
+            style={{ ['--choice-color' as string]: '#3d86ee' }}
             disabled={disabled || used || wrong.includes(i)}
             onClick={() => onPick(i)}
           >

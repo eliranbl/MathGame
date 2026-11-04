@@ -11,7 +11,8 @@ interface Props {
   onPick: (value: string) => void;
 }
 
-const COLORS = ['#ff9f43', '#4d96ff', '#9b72e8', '#ff6b81'];
+// Each deep enough for the white numbers and letters on them (WCAG AA, large text).
+const COLORS = ['#db7310', '#3d86ee', '#9b72e8', '#f2557a'];
 
 /** Answer buttons showing letters, syllables, words or pictures. */
 export function TileChoices({ choices, style, lang, wrongPicks, correct, disabled, onPick }: Props) {
@@ -23,6 +24,7 @@ export function TileChoices({ choices, style, lang, wrongPicks, correct, disable
         return (
           <button
             key={c}
+            lang={lang === 'en' && style !== 'emoji' ? 'en' : undefined}
             className={`choice tile tile--${style} ${style === 'emoji' ? '' : lang === 'en' ? 'eng' : 'heb'} ${wrong ? 'choice--wrong' : ''} ${isCorrect ? 'choice--correct' : ''}`}
             style={{ ['--choice-color' as string]: COLORS[i % COLORS.length] }}
             disabled={disabled || wrong}
